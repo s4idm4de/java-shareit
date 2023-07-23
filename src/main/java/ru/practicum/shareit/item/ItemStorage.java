@@ -43,7 +43,7 @@ public class ItemStorage {
 
     public Item updateItem(Integer itemId, Integer userId, Item item) {
         try {
-            if (items.containsKey(itemId) && items.get(itemId).getOwner().getId() == userId) {
+            if (items.containsKey(itemId) && items.get(itemId).getOwner().getId().equals(userId)) {
                 Item item1 = items.get(itemId);
                 @Valid Item itemForAdd = Item.builder()
                         .id(itemId)
@@ -75,7 +75,7 @@ public class ItemStorage {
     }
 
     public List<ItemDto> getItemOfUser(Integer userId) {
-        return items.values().stream().filter(item -> item.getOwner().getId() == userId)
+        return items.values().stream().filter(item -> item.getOwner().getId().equals(userId))
                 .map(item -> ItemMapper.toItemDto(item)).collect(Collectors.toList());
     }
 

@@ -54,7 +54,7 @@ public class UserStorage {
             List<User> usersWithEmail = users.values().stream()
                     .filter(user2 -> user2.getEmail().equals(userForAdd.getEmail()))
                     .collect(Collectors.toList());
-            if (usersWithEmail.size() > 0 && usersWithEmail.get(0).getId() != userId) {
+            if (usersWithEmail.size() > 0 && !usersWithEmail.get(0).getId().equals(userId)) {
                 throw new ContradictionException("мэил уже занят");
             } else {
                 users.put(userId, userForAdd);
