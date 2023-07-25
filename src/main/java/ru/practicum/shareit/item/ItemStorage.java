@@ -44,20 +44,20 @@ public class ItemStorage {
     public Item updateItem(Integer itemId, Integer userId, Item item) {
         try {
             if (items.containsKey(itemId) && items.get(itemId).getOwner().getId().equals(userId)) {
-                Item item1 = items.get(itemId);
+                Item oldItem = items.get(itemId);
                 @Valid Item itemForAdd = Item.builder()
                         .id(itemId)
-                        .owner(item.getOwner() == null ? item1.getOwner() : item.getOwner())
-                        .name(item.getName() == null ? item1.getName() : item.getName())
-                        .available(item.getAvailable() == null ? item1.isAvailable() : item.isAvailable())
-                        .request(item.getRequest() == null ? item1.getRequest() : item.getRequest())
-                        .description(item.getDescription() == null ? item1.getDescription() : item.getDescription())
+                        .owner(item.getOwner() == null ? oldItem.getOwner() : item.getOwner())
+                        .name(item.getName() == null ? oldItem.getName() : item.getName())
+                        .available(item.getAvailable() == null ? oldItem.isAvailable() : item.isAvailable())
+                        .request(item.getRequest() == null ? oldItem.getRequest() : item.getRequest())
+                        .description(item.getDescription() == null ? oldItem.getDescription() : item.getDescription())
                         .build();
                 items.put(itemId, itemForAdd);
                 log.info("UPDATE items {}", items);
                 return itemForAdd;
             } else {
-                throw new NotFoundException("");
+                throw new NotFoundException("не найден или пользователь " + userId + "или вещь " + itemId);
             }
         } catch (NotFoundException e) {
             throw new ResponseStatusException(

@@ -19,21 +19,22 @@ public class UserStorage {
     private HashMap<Integer, User> users = new HashMap<>();
 
     public List<UserDto> getAll() {
-        return users.values().stream().map(user -> UserMapper.toUserDto(user)).collect(Collectors.toList());
+        return users.values().stream()
+                .map(user -> UserMapper.toUserDto(user))
+                .collect(Collectors.toList());
     }
 
     public User getUserById(Integer userId) throws NotFoundException {
         if (users.containsKey(userId)) {
             return users.get(userId);
         } else {
-            throw new NotFoundException("Нет такого пользователя");
+            throw new NotFoundException("Нет пользователя " + userId);
         }
     }
 
     public User addUser(User user) throws ContradictionException {
         if (users.values().stream()
-                .filter(user1 -> user1.getEmail().equals(user.getEmail()))
-                .collect(Collectors.toList()).size() == 0) {
+                .noneMatch(user1 -> user1.getEmail().equals(user.getEmail()))) {
             user.setId(id);
             users.put(id, user);
             id++;
@@ -45,9 +46,9 @@ public class UserStorage {
 
     public User updateUser(User user, Integer userId) throws NotFoundException, ContradictionException {
         if (users.containsKey(userId)) {
-            User user1 = users.get(userId);
-            if (user.getName() == null || user.getName().isBlank()) user.setName(user1.getName());
-            if (user.getEmail() == null || user.getEmail().isBlank()) user.setEmail(user1.getEmail());
+            User oldUser = users.get(userId);
+            if (user.getName() == null || user.getName().isBlank()) user.setName(oldUser.getName());
+            if (user.getEmail() == null || user.getEmail().isBlank()) user.setEmail(oldUser.getEmail());
             log.info("UPDATE StoRAGE {}", user);
             @Valid User userForAdd = user;
             userForAdd.setId(userId);

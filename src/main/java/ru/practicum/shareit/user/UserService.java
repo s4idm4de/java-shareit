@@ -29,18 +29,18 @@ public class UserService {
         }
     }
 
-    public UserDto addUser(User user) {
+    public UserDto addUser(UserDto user) {
         try {
-            return UserMapper.toUserDto(userStorage.addUser(user));
+            return UserMapper.toUserDto(userStorage.addUser(UserMapper.toUser(user)));
         } catch (ContradictionException e) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, e.getMessage(), e);
         }
     }
 
-    public UserDto updateUser(User user, Integer userId) {
+    public UserDto updateUser(UserDto user, Integer userId) {
         try {
-            return UserMapper.toUserDto(userStorage.updateUser(user, userId));
+            return UserMapper.toUserDto(userStorage.updateUser(UserMapper.toUser(user), userId));
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);

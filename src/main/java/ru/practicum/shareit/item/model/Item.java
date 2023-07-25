@@ -14,7 +14,6 @@ public class Item {
     private Integer id;
     @NotBlank
     private String name;
-
     @NotBlank
     private String description;
     @NotNull

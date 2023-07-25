@@ -7,7 +7,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
@@ -18,13 +17,13 @@ public class ItemServiceImpl implements ItemService {
     private ItemStorage itemStorage;
 
     @Override
-    public ItemDto putItem(Item item, Integer userId) {
-        return ItemMapper.toItemDto(itemStorage.putItem(item, userId));
+    public ItemDto putItem(ItemDto item, Integer userId) {
+        return ItemMapper.toItemDto(itemStorage.putItem(ItemMapper.toItem(item), userId));
     }
 
     @Override
-    public ItemDto updateItem(Integer itemId, Integer userId, Item item) {
-        return ItemMapper.toItemDto(itemStorage.updateItem(itemId, userId, item));
+    public ItemDto updateItem(Integer itemId, Integer userId, ItemDto item) {
+        return ItemMapper.toItemDto(itemStorage.updateItem(itemId, userId, ItemMapper.toItem(item)));
     }
 
 
