@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class ItemStorage {
     @Autowired
     private UserStorage userStorage;
-    private Integer itemId = 1;
-    private HashMap<Integer, Item> items = new HashMap<>();
+    private long itemId = 1;
+    private HashMap<Long, Item> items = new HashMap<>();
 
-    public Item putItem(Item item, Integer userId) {
+    public Item putItem(Item item, Long userId) {
         try {
             User user = userStorage.getUserById(userId);
             item.setId(itemId);
@@ -41,7 +41,7 @@ public class ItemStorage {
         }
     }
 
-    public Item updateItem(Integer itemId, Integer userId, Item item) {
+    public Item updateItem(Long itemId, Long userId, Item item) {
         try {
             if (items.containsKey(itemId) && items.get(itemId).getOwner().getId().equals(userId)) {
                 Item oldItem = items.get(itemId);
