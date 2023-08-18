@@ -46,15 +46,13 @@ public class BookingServiceImp implements BookingService {
                     -> new NotFoundException("нет такого пользователя"));
             Item item = itemRepository.findById(bookingDto.getItemId()).orElseThrow(()
                     -> new NotFoundException("нет такого item"));
-            if (item.isAvailable() && item.getOwner().getId() != userId) {
+            if (item.isAvailable() && !item.getOwner().getId().equals(userId)) {
                 booking.setItem(item);
                 booking.setBooker(booker);
                 log.info("BookingService putBooking {}", booking);
-                //item.setAvailable(false);
-                //itemRepository.save(item);
                 log.info("BookingService putBooking {}", bookingRepository.findAll());
                 return BookingMapper.toBookingDto(bookingRepository.save(booking));
-            } else if (item.getOwner().getId() == userId) {
+            } else if (item.getOwner().getId().equals(userId)) {
                 throw new NotFoundException("ну не себе же сдавать в аренду");
             } else {
                 throw new ValidationException("вещь недоступна для брони");

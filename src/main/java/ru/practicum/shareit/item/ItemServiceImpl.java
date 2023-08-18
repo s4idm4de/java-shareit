@@ -77,13 +77,14 @@ public class ItemServiceImpl implements ItemService {
                 -> new NotFoundException("нет такого item"));
         List<Comment> comments = commentRepository.findAllByItem(item, Sort.by(Sort.Direction.ASC, "created"));
         ItemDto itemDto = ItemMapper.toItemDto(item);
-        if (item.getOwner().getId() == userId) {
+        if (item.getOwner().getId().equals(userId)) {
             List<Booking> bookingsLast = bookingRepository.findLastBooking(item, LocalDateTime.now());
             if (!bookingsLast.isEmpty()) itemDto.setLastBooking(BookingMapper.toBookingDto(bookingsLast.get(0)));
             if (itemDto.getLastBooking() != null) {
                 List<Booking> bookingsNext = bookingRepository.findFirstBooking(item, LocalDateTime.now())
                         .stream()
-                        .filter(booking -> booking.getStart().isAfter(itemDto.getLastBooking().getEnd())).collect(Collectors.toList());
+                        .filter(booking -> booking.getStart().isAfter(itemDto.getLastBooking()
+                                .getEnd())).collect(Collectors.toList());
                 if (!bookingsNext.isEmpty()) itemDto.setNextBooking(BookingMapper.toBookingDto(bookingsNext.get(0)));
             }
         }
@@ -137,7 +138,6 @@ public class ItemServiceImpl implements ItemService {
             List<Booking> bookings = bookingRepository
                     .findAllByBooker_IdAndEndIsBefore(userId, created,
                             Sort.by(Sort.Direction.DESC, "end"));
-            //добавить проверку на то, что брал в аренду
             Item item = repository.findById(itemId).orElseThrow(()
                     -> new NotFoundException("нет такого пользователя"));
             User user = userRepository.findById(userId).orElseThrow(()

@@ -65,7 +65,7 @@ public class ItemStorage {
         }
     }
 
-    public Item getItemById(Integer itemId, Integer userId) throws NotFoundException {
+    public Item getItemById(Long itemId, Long userId) throws NotFoundException {
         log.info("GET ITEM BY ID items {}", items);
         if (items.containsKey(itemId)) {
             return items.get(itemId);
@@ -74,7 +74,7 @@ public class ItemStorage {
         }
     }
 
-    public List<ItemDto> getItemOfUser(Integer userId) {
+    public List<ItemDto> getItemOfUser(Long userId) {
         return items.values().stream().filter(item -> item.getOwner().getId().equals(userId))
                 .map(item -> ItemMapper.toItemDto(item)).collect(Collectors.toList());
     }
