@@ -20,9 +20,10 @@ import java.util.List;
 public class ItemController {
     @Autowired
     private ItemService itemService;
+    private final String requestHeader = "X-Sharer-User-Id";
 
     @PostMapping
-    public ItemDto putItem(@Valid @RequestBody ItemDto item, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemDto putItem(@Valid @RequestBody ItemDto item, @RequestHeader(requestHeader) Long userId) {
         try {
             return itemService.putItem(item, userId);
         } catch (NotFoundException e) {
@@ -33,7 +34,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId,
-                              @RequestHeader("X-Sharer-User-Id") Long userId,
+                              @RequestHeader(requestHeader) Long userId,
                               @RequestBody ItemDto item) {
         try {
             return itemService.updateItem(itemId, userId, item);
@@ -44,7 +45,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Long itemId, @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemDto getItemById(@PathVariable Long itemId, @RequestHeader(requestHeader) Long userId) {
         try {
             return itemService.getItemById(itemId, userId);
         } catch (NotFoundException e) {
@@ -54,7 +55,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getItemOfUser(@RequestHeader(requestHeader) Long userId) {
         try {
             return itemService.getItemOfUser(userId);
         } catch (NotFoundException e) {
@@ -71,7 +72,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto putComment(@PathVariable Long itemId,
-                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @RequestHeader(requestHeader) Long userId,
                                  @RequestBody @Validated CommentDto comment) {
 
         return itemService.putComment(itemId, userId, comment, LocalDateTime.now());

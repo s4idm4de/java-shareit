@@ -1,10 +1,7 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import ru.practicum.shareit.exception.ContradictionException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
@@ -28,12 +25,9 @@ public class UserController {
 
     @PostMapping
     public UserDto create(@Valid @RequestBody UserDto user) {
-        try {
-            return userService.addUser(user);
-        } catch (ContradictionException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, e.getMessage(), e);
-        }
+
+        return userService.addUser(user);
+
     }
 
     @PatchMapping("/{id}")

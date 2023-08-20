@@ -35,6 +35,7 @@ public class BookingServiceImp implements BookingService {
     @Autowired
     private final UserRepository userRepository;
 
+
     @Override
     public BookingDto putBooking(BookingDto bookingDto, Long userId) {
         log.info("BookingService putBooking {} LocalNow {}", bookingDto, LocalDateTime.now());
@@ -50,7 +51,6 @@ public class BookingServiceImp implements BookingService {
                 booking.setItem(item);
                 booking.setBooker(booker);
                 log.info("BookingService putBooking {}", booking);
-                log.info("BookingService putBooking {}", bookingRepository.findAll());
                 return BookingMapper.toBookingDto(bookingRepository.save(booking));
             } else if (item.getOwner().getId().equals(userId)) {
                 throw new NotFoundException("ну не себе же сдавать в аренду");
@@ -101,12 +101,12 @@ public class BookingServiceImp implements BookingService {
                         -> new NotFoundException("нет такого пользователя"));
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(()
-                        -> new NotFoundException("нет такого пользователя"));
+                        -> new NotFoundException("нет такого бронирования"));
         if (booking.getItem().getOwner().equals(user) || booking.getBooker().equals(user)) {
             log.info("BookingService getBooking {}", bookingRepository.findAll());
             return BookingMapper.toBookingDto(booking);
         } else {
-            throw new NotFoundException("нет такого");
+            throw new NotFoundException("доступ только у арендатора или хозяина");
         }
     }
 

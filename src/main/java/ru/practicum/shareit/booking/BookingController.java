@@ -24,16 +24,16 @@ public class BookingController {
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
-
+    private final String requestHeader = "X-Sharer-User-Id";
 
     @PostMapping
-    public BookingDto putBooking(@RequestHeader("X-Sharer-User-Id") Long userId, @RequestBody @Validated BookingDto bookingDto) {
+    public BookingDto putBooking(@RequestHeader(requestHeader) Long userId, @RequestBody @Validated BookingDto bookingDto) {
         log.info("BookingController {} LocalDateTime {}", bookingDto, LocalDateTime.now());
         try {
             if (bookingDto.getEnd().isBefore(LocalDateTime.now()) || bookingDto.getStart().isBefore(LocalDateTime.now())
                     || bookingDto.getEnd().isBefore(bookingDto.getStart())
                     || bookingDto.getStart().equals(bookingDto.getEnd())) {
-                throw new ValidationException("что быlо раньше -- курица или яйцо?");
+                throw new ValidationException("время начала резервации должно быть строго раньше времени конца");
             } else {
                 return bookingService.putBooking(bookingDto, userId);
             }
@@ -62,14 +62,14 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getAllBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> getAllBookings(@RequestHeader(requestHeader) Long userId,
                                            @RequestParam(required = false) String state) throws IllegalException {
         if (state == null) state = "ALL";
         return bookingService.getAllBookings(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDto> getAllBookingsOfOwner(@RequestHeader(requestHeader) Long userId,
                                                   @RequestParam(required = false) String state) throws IllegalException {
         if (state == null) state = "ALL";
         return bookingService.getAllBookingsOfOwner(userId, state);

@@ -34,7 +34,6 @@ public class UserService {
         try {
             User user = repository.findById(userId).orElseThrow(()
                     -> new NotFoundException("нет такого пользователя"));
-            ;
             return UserMapper.toUserDto(user);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
@@ -42,7 +41,7 @@ public class UserService {
         }
     }
 
-    public UserDto addUser(UserDto user) throws ContradictionException {
+    public UserDto addUser(UserDto user) {
 
         User userFromDto = repository.save(UserMapper.toUser(user));
         log.info("UserService addUser {}", repository.findAll());
@@ -60,14 +59,15 @@ public class UserService {
                 if (users.size() != 0) {
                     throw new ContradictionException("мэил должен быть уникальным");
                 }
+            } else {
+                user.setEmail(oldUser.getEmail());
             }
             if (user.getName() == null || user.getName().isBlank()) user.setName(oldUser.getName());
-            if (user.getEmail() == null || user.getEmail().isBlank()) user.setEmail(oldUser.getEmail());
             @Valid User userForAdd = UserMapper.toUser(user);
             userForAdd.setId(userId);
-            User forLog = repository.save(userForAdd);
-            log.info("UserService updateUser {}", forLog);
-            return UserMapper.toUserDto(userForAdd);
+            User userForLog = repository.save(userForAdd);
+            log.info("UserService updateUser {}", userForLog);
+            return UserMapper.toUserDto(userForLog);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);

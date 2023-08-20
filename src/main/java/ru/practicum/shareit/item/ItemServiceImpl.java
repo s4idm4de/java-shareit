@@ -54,9 +54,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Long itemId, Long userId, ItemDto item) throws NotFoundException {
-        User user = userRepository.findById(userId).orElseThrow(()
+        userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("нет такого пользователя"));
-        Item oldItem = repository.getById(itemId);
+        Item oldItem = repository.findById(itemId).orElseThrow(()
+                -> new NotFoundException("нет такой вещи"));
         @Valid Item itemForAdd = Item.builder()
                 .id(itemId)
                 .owner(item.getOwner() == null ? oldItem.getOwner() : item.getOwner())
@@ -89,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
             }
         }
         if (comments == null) {
-            itemDto.setComments(new ArrayList<CommentDto>());
+            itemDto.setComments(new ArrayList<>());
         } else {
             itemDto.setComments(CommentMapper.toCommentDto(comments));
         }
@@ -110,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
             List<Comment> comments = commentRepository.findAllByItem(item, Sort.by(Sort.Direction.ASC, "created"));
             ItemDto itemDto = ItemMapper.toItemDto(item);
             if (comments == null) {
-                itemDto.setComments(new ArrayList<CommentDto>());
+                itemDto.setComments(new ArrayList<>());
             } else {
                 itemDto.setComments(CommentMapper.toCommentDto(comments));
             }
@@ -139,7 +140,7 @@ public class ItemServiceImpl implements ItemService {
                     .findAllByBooker_IdAndEndIsBefore(userId, created,
                             Sort.by(Sort.Direction.DESC, "end"));
             Item item = repository.findById(itemId).orElseThrow(()
-                    -> new NotFoundException("нет такого пользователя"));
+                    -> new NotFoundException("нет такой вещи"));
             User user = userRepository.findById(userId).orElseThrow(()
                     -> new NotFoundException("нет такого пользователя"));
             if (bookings != null && bookings.size() > 0) {
@@ -150,7 +151,7 @@ public class ItemServiceImpl implements ItemService {
                         .created(created)
                         .build()));
             } else {
-                throw new ValidationException("сначала используй - потом критикуй");
+                throw new ValidationException("нельзя оставить отзыв на неиспользованную вещь");
             }
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
