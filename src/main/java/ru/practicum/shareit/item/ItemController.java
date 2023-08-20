@@ -20,7 +20,6 @@ import java.util.List;
 public class ItemController {
     @Autowired
     private ItemService itemService;
-    
     private final String requestHeader = "X-Sharer-User-Id";
 
     @PostMapping
