@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class ItemStorage {
     @Autowired
     private UserStorage userStorage;
-    private Integer itemId = 1;
-    private HashMap<Integer, Item> items = new HashMap<>();
+    private long itemId = 1;
+    private HashMap<Long, Item> items = new HashMap<>();
 
-    public Item putItem(Item item, Integer userId) {
+    public Item putItem(Item item, Long userId) {
         try {
             User user = userStorage.getUserById(userId);
             item.setId(itemId);
@@ -41,7 +41,7 @@ public class ItemStorage {
         }
     }
 
-    public Item updateItem(Integer itemId, Integer userId, Item item) {
+    public Item updateItem(Long itemId, Long userId, Item item) {
         try {
             if (items.containsKey(itemId) && items.get(itemId).getOwner().getId().equals(userId)) {
                 Item oldItem = items.get(itemId);
@@ -65,7 +65,7 @@ public class ItemStorage {
         }
     }
 
-    public Item getItemById(Integer itemId, Integer userId) throws NotFoundException {
+    public Item getItemById(Long itemId, Long userId) throws NotFoundException {
         log.info("GET ITEM BY ID items {}", items);
         if (items.containsKey(itemId)) {
             return items.get(itemId);
@@ -74,7 +74,7 @@ public class ItemStorage {
         }
     }
 
-    public List<ItemDto> getItemOfUser(Integer userId) {
+    public List<ItemDto> getItemOfUser(Long userId) {
         return items.values().stream().filter(item -> item.getOwner().getId().equals(userId))
                 .map(item -> ItemMapper.toItemDto(item)).collect(Collectors.toList());
     }

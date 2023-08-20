@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class UserStorage {
-    private Integer id = 1;
-    private HashMap<Integer, User> users = new HashMap<>();
+    private long id = 1;
+    private HashMap<Long, User> users = new HashMap<>();
 
     public List<UserDto> getAll() {
         return users.values().stream()
@@ -24,7 +24,7 @@ public class UserStorage {
                 .collect(Collectors.toList());
     }
 
-    public User getUserById(Integer userId) throws NotFoundException {
+    public User getUserById(Long userId) throws NotFoundException {
         if (users.containsKey(userId)) {
             return users.get(userId);
         } else {
@@ -44,7 +44,7 @@ public class UserStorage {
         }
     }
 
-    public User updateUser(User user, Integer userId) throws NotFoundException, ContradictionException {
+    public User updateUser(User user, Long userId) throws NotFoundException, ContradictionException {
         if (users.containsKey(userId)) {
             User oldUser = users.get(userId);
             if (user.getName() == null || user.getName().isBlank()) user.setName(oldUser.getName());
@@ -66,7 +66,7 @@ public class UserStorage {
         }
     }
 
-    public void delete(Integer userId) throws NotFoundException {
+    public void delete(Long userId) throws NotFoundException {
         if (users.containsKey(userId)) {
             users.remove(userId);
         } else {
