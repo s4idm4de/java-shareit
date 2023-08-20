@@ -24,6 +24,7 @@ public class BookingController {
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
+
     private final String requestHeader = "X-Sharer-User-Id";
 
     @PostMapping
