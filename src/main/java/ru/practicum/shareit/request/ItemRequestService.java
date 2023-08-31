@@ -80,11 +80,11 @@ public class ItemRequestService {
             if (from != null && size != null) {
                 requestsDto = ItemRequestMapper.toRequestDto(requestRepository.findAll(
                                 PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "created")))).stream()
-                        .filter(requestDto -> requestDto.getRequestorId() != userId).collect(Collectors.toList());
+                        .filter(requestDto -> !requestDto.getRequestorId().equals(userId)).collect(Collectors.toList());
             } else {
                 requestsDto = ItemRequestMapper.toRequestDto(requestRepository.findAll(
                                 Sort.by(Sort.Direction.ASC, "created"))).stream()
-                        .filter(requestDto -> requestDto.getRequestorId() != userId).collect(Collectors.toList());
+                        .filter(requestDto -> !requestDto.getRequestorId().equals(userId)).collect(Collectors.toList());
             }
             requestsDto.forEach(requestDto -> setItems(requestDto, userId));
             return requestsDto;
@@ -111,7 +111,7 @@ public class ItemRequestService {
     }
 
     private void setItems(ItemRequestDto requestDto, Long userId) {
-        if (requestDto.getRequestorId() != userId) {
+        if (!requestDto.getRequestorId().equals(userId)) {
             List<ItemDto> itemsDto = ItemMapper.toItemDto(
                     itemRepository.findAllByRequest_Id(requestDto.getId()));
             requestDto.setItems(itemsDto);
