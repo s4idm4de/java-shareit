@@ -64,15 +64,31 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllBookings(@RequestHeader(requestHeader) Long userId,
-                                           @RequestParam(required = false) String state) throws IllegalException {
-        if (state == null) state = "ALL";
-        return bookingService.getAllBookings(userId, state);
+                                           @RequestParam(required = false) String state,
+                                           @RequestParam(required = false) Integer from,
+                                           @RequestParam(required = false) Integer size) throws IllegalException {
+        try {
+            if (state == null) state = "ALL";
+            if (from != null && from < 0) throw new ValidationException("нет отрицательных индексов");
+            return bookingService.getAllBookings(userId, state, from, size);
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllBookingsOfOwner(@RequestHeader(requestHeader) Long userId,
-                                                  @RequestParam(required = false) String state) throws IllegalException {
-        if (state == null) state = "ALL";
-        return bookingService.getAllBookingsOfOwner(userId, state);
+                                                  @RequestParam(required = false) String state,
+                                                  @RequestParam(required = false) Integer from,
+                                                  @RequestParam(required = false) Integer size) throws IllegalException {
+        try {
+            if (state == null) state = "ALL";
+            if (from != null && from < 0) throw new ValidationException("нет отрицательных индексов");
+            return bookingService.getAllBookingsOfOwner(userId, state, from, size);
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 }

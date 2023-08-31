@@ -14,7 +14,7 @@ public interface BookingService {
 
     public BookingDto getBooking(Long bookingId, Long userId) throws NotFoundException;
 
-    public List<BookingDto> getAllBookings(Long userId, String state) throws IllegalException;
+    public List<BookingDto> getAllBookings(Long userId, String state, Integer from, Integer size) throws IllegalException;
 
-    public List<BookingDto> getAllBookingsOfOwner(Long userId, String state) throws IllegalException;
+    public List<BookingDto> getAllBookingsOfOwner(Long userId, String state, Integer from, Integer size) throws IllegalException;
 }

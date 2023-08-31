@@ -18,8 +18,12 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.dto.UserMapper;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -41,13 +45,21 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     @Autowired
     private final ItemRepository repository;
+    @Autowired
+    private final ItemRequestRepository requestRepository;
 
     @Override
     public ItemDto putItem(ItemDto item, Long userId) throws NotFoundException {
         User user = userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("нет такого пользователя"));
-        item.setOwner(user);
-        Item itemForSave = repository.save(ItemMapper.toItem(item));
+        item.setOwner(UserMapper.toUserDto(user));
+        Item itemForSave = ItemMapper.toItem(item);
+        if (item.getRequestId() != null) {
+            ItemRequest request = requestRepository.findById(item.getRequestId()).orElseThrow(()
+                    -> new NotFoundException("нет такого реквеста"));
+            itemForSave.setRequest(request);
+        }
+        repository.save(itemForSave);
         log.info("ItemService putItem {}", itemForSave);
         return ItemMapper.toItemDto(itemForSave);
     }
@@ -60,10 +72,10 @@ public class ItemServiceImpl implements ItemService {
                 -> new NotFoundException("нет такой вещи"));
         @Valid Item itemForAdd = Item.builder()
                 .id(itemId)
-                .owner(item.getOwner() == null ? oldItem.getOwner() : item.getOwner())
+                .owner(item.getOwner() == null ? oldItem.getOwner() : UserMapper.toUser(item.getOwner()))
                 .name(item.getName() == null ? oldItem.getName() : item.getName())
                 .available(item.getAvailable() == null ? oldItem.isAvailable() : item.isAvailable())
-                .request(item.getRequest() == null ? oldItem.getRequest() : item.getRequest())
+                .request(item.getRequest() == null ? oldItem.getRequest() : ItemRequestMapper.toRequest(item.getRequest()))
                 .description(item.getDescription() == null ? oldItem.getDescription() : item.getDescription())
                 .build();
         Item itemForDate = repository.save(itemForAdd);

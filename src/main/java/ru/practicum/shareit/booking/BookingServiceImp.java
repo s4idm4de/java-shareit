@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -111,31 +112,58 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookings(Long userId, String state) throws IllegalException {
+    public List<BookingDto> getAllBookings(Long userId, String state, Integer from, Integer size) throws IllegalException {
         try {
-            userRepository.findById(userId)
-                    .orElseThrow(()
-                            -> new NotFoundException("нет такого пользователя"));
-            BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
-            if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
-                return BookingMapper.toBookingDto(
-                        bookingRepository.findAllByBooker_Id(userId,
-                                Sort.by(Sort.Direction.DESC, "start")));
-            } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndStartIsAfter(userId,
-                        LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
-            } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsAfterAndStartIsBefore(userId,
-                        LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
-            } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsBefore(userId,
-                        LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+            if (from == null) {
+                userRepository.findById(userId)
+                        .orElseThrow(()
+                                -> new NotFoundException("нет такого пользователя"));
+                BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
+                if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByBooker_Id(userId,
+                                    Sort.by(Sort.Direction.DESC, "start")));
+                } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndStartIsAfter(userId,
+                            LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsAfterAndStartIsBefore(userId,
+                            LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsBefore(userId,
+                            LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start")));
+                } else {
+                    BookingStatus stateForSearch = BookingStatus.valueOf(state);
+                    log.info("BookingService getAllBookingsOfOwner {}", state);
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByBooker_IdAndStatus(userId, stateForSearch,
+                                    Sort.by(Sort.Direction.DESC, "start")));
+                }
             } else {
-                BookingStatus stateForSearch = BookingStatus.valueOf(state);
-                log.info("BookingService getAllBookingsOfOwner {}", state);
-                return BookingMapper.toBookingDto(
-                        bookingRepository.findAllByBooker_IdAndStatus(userId, stateForSearch,
-                                Sort.by(Sort.Direction.DESC, "start")));
+                userRepository.findById(userId)
+                        .orElseThrow(()
+                                -> new NotFoundException("нет такого пользователя"));
+                BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
+                if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByBooker_Id(userId,
+                                    PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))));
+                } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndStartIsAfter(userId,
+                            LocalDateTime.now(), PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))));
+                } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsAfterAndStartIsBefore(userId,
+                            LocalDateTime.now(), LocalDateTime.now(), PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))));
+                } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByBooker_IdAndEndIsBefore(userId,
+                            LocalDateTime.now(), PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))));
+                } else {
+                    BookingStatus stateForSearch = BookingStatus.valueOf(state);
+                    log.info("BookingService getAllBookingsOfOwner {}", state);
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByBooker_IdAndStatus(userId, stateForSearch,
+                                    PageRequest.of(from, size, Sort.by(Sort.Direction.DESC, "start"))));
+                }
             }
         } catch (IllegalArgumentException e) {
             log.info("Mistake {}", e.getMessage());
@@ -147,42 +175,81 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsOfOwner(Long userId, String state) throws IllegalException {
+    public List<BookingDto> getAllBookingsOfOwner(Long userId, String state, Integer from, Integer size) throws IllegalException {
         try {
-            userRepository.findById(userId)
-                    .orElseThrow(()
-                            -> new NotFoundException("нет такого пользователя"));
-            BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
-            if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
-                return BookingMapper.toBookingDto(
-                        bookingRepository.findAll().stream().filter(booking -> booking.getItem()
-                                        .getOwner().getId().equals(userId))
-                                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                                .collect(Collectors.toList()));
-            } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByStartIsAfter(LocalDateTime.now(),
-                                Sort.by(Sort.Direction.DESC, "start")).stream()
-                        .filter(booking -> booking.getItem()
-                                .getOwner().getId().equals(userId)).collect(Collectors.toList()));
-            } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsAfterAndStartIsBefore(
-                                LocalDateTime.now(), LocalDateTime.now(),
-                                Sort.by(Sort.Direction.DESC, "start")).stream()
-                        .filter(booking -> booking.getItem()
-                                .getOwner().getId().equals(userId)).collect(Collectors.toList()));
-            } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
-                return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsBefore(LocalDateTime.now(),
-                                Sort.by(Sort.Direction.DESC, "start")).stream()
-                        .filter(booking -> booking.getItem()
-                                .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+            if (from == null) {
+                userRepository.findById(userId)
+                        .orElseThrow(()
+                                -> new NotFoundException("нет такого пользователя"));
+                BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
+                if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAll().stream().filter(booking -> booking.getItem()
+                                            .getOwner().getId().equals(userId))
+                                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                                    .collect(Collectors.toList()));
+                } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByStartIsAfter(LocalDateTime.now(),
+                                    Sort.by(Sort.Direction.DESC, "start")).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsAfterAndStartIsBefore(
+                                    LocalDateTime.now(), LocalDateTime.now(),
+                                    Sort.by(Sort.Direction.DESC, "start")).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsBefore(LocalDateTime.now(),
+                                    Sort.by(Sort.Direction.DESC, "start")).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else {
+                    BookingStatus stateForSearch = BookingStatus.valueOf(state);
+                    log.info("BookingService getAllBookingsOfOwner {}", stateForSearch);
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByStatus(stateForSearch).stream().filter(booking -> booking.getItem()
+                                            .getOwner().getId().equals(userId))
+                                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                                    .collect(Collectors.toList()));
+                }
             } else {
-                BookingStatus stateForSearch = BookingStatus.valueOf(state);
-                log.info("BookingService getAllBookingsOfOwner {}", stateForSearch);
-                return BookingMapper.toBookingDto(
-                        bookingRepository.findAllByStatus(stateForSearch).stream().filter(booking -> booking.getItem()
-                                        .getOwner().getId().equals(userId))
-                                .sorted(Comparator.comparing(Booking::getStart).reversed())
-                                .collect(Collectors.toList()));
+                userRepository.findById(userId)
+                        .orElseThrow(()
+                                -> new NotFoundException("нет такого пользователя"));
+                BookingStatusForSearch statusForSearch = BookingStatusForSearch.valueOf(state);
+                if (statusForSearch.equals(BookingStatusForSearch.ALL)) {
+                    log.info("BOOOOKINGS");
+                    List<Booking> bookings = bookingRepository
+                            .takeAllByOwnerId(userId, PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start")));
+                    log.info("BOOOKINGS getByOwner {}", bookings);
+                    return BookingMapper.toBookingDto(
+                            bookings);
+                } else if (statusForSearch.equals(BookingStatusForSearch.FUTURE)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByStartIsAfter(LocalDateTime.now(),
+                                    PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else if (statusForSearch.equals(BookingStatusForSearch.CURRENT)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsAfterAndStartIsBefore(
+                                    LocalDateTime.now(), LocalDateTime.now(),
+                                    PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else if (statusForSearch.equals(BookingStatusForSearch.PAST)) {
+                    return BookingMapper.toBookingDto(bookingRepository.findAllByEndIsBefore(LocalDateTime.now(),
+                                    PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))).stream()
+                            .filter(booking -> booking.getItem()
+                                    .getOwner().getId().equals(userId)).collect(Collectors.toList()));
+                } else {
+                    BookingStatus stateForSearch = BookingStatus.valueOf(state);
+                    log.info("BookingService getAllBookingsOfOwner {}", stateForSearch);
+                    return BookingMapper.toBookingDto(
+                            bookingRepository.findAllByStatus(stateForSearch, PageRequest.of(from, size)).stream().filter(booking -> booking.getItem()
+                                            .getOwner().getId().equals(userId))
+                                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                                    .collect(Collectors.toList()));
+                }
             }
         } catch (NotFoundException e) {
             throw new ResponseStatusException(

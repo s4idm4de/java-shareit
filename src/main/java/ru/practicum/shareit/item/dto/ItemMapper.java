@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +14,10 @@ public class ItemMapper {
                 .id(item.getId())
                 .description(item.getDescription())
                 .available(item.isAvailable())
-                .owner(item.getOwner())
-                .request(item.getRequest() != null ? item.getRequest() : null).build();
+                .owner(UserMapper.toUserDto(item.getOwner()))
+                .request(item.getRequest() != null ? ItemRequestMapper.toRequestDto(item.getRequest()) : null)
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
+                .build();
     }
 
 
@@ -23,8 +27,8 @@ public class ItemMapper {
                 .id(item.getId())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .owner(item.getOwner())
-                .build();
+                .owner(UserMapper.toUser(item.getOwner()))
+                .request(item.getRequest() != null ? ItemRequestMapper.toRequest(item.getRequest()) : null).build();
     }
 
     public static List<ItemDto> toItemDto(Iterable<Item> items) {
