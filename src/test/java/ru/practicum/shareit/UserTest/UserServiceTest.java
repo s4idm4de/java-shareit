@@ -84,6 +84,6 @@ public class UserServiceTest {
         assertThat(user.getEmail(), equalTo(userDto2.getEmail()));
         userRepository.deleteAll();
     }
-    
+
 
 }

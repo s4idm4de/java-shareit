@@ -83,8 +83,7 @@ public class UserService {
                     -> new NotFoundException("нет такого пользователя"));
             repository.delete(user);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }
