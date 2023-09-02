@@ -169,6 +169,10 @@ public class BookingServiceTest {
                 0);
         assertEquals(bookingService.getAllBookings(2L, "CURRENT", 0, 1).size(),
                 0);
+        assertEquals(bookingService.getAllBookings(1L, "CANCELED", 0, 1).size(),
+                0);
+        assertEquals(bookingService.getAllBookings(1L, "CANCELED", null, null).size(),
+                0);
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
             @Override
@@ -208,6 +212,10 @@ public class BookingServiceTest {
         assertEquals(bookingService.getAllBookingsOfOwner(1L, "PAST", 0, 1).size(),
                 0);
         assertEquals(bookingService.getAllBookingsOfOwner(1L, "CURRENT", 0, 1).size(),
+                0);
+        assertEquals(bookingService.getAllBookingsOfOwner(1L, "CANCELED", 0, 1).size(),
+                0);
+        assertEquals(bookingService.getAllBookingsOfOwner(1L, "CANCELED", null, null).size(),
                 0);
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
             @Override
