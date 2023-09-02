@@ -23,9 +23,9 @@ import ru.practicum.shareit.user.dto.UserDto;
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -87,8 +87,23 @@ public class ItemRequestControllerTest {
 
     @Test
     void testGetRequestsAll() throws Exception {
+        when(requestService.getRequestsAll(anyLong(), anyInt(), anyInt())).thenReturn(List.of(requestDto));
+        mvc.perform(get("/requests/all?from=1&size=10").header(requestHeader, 1))
+                .andExpect(status().isOk());
+
         mvc.perform(get("/requests/all?from=-1&size=10").header(requestHeader, 1))
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void testGetRequests() throws Exception {
+        when(requestService.getRequests(anyLong())).thenReturn(List.of(requestDto));
+        mvc.perform(get("/requests").header(requestHeader, 1)).andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetRequest() throws Exception {
+        when(requestService.getRequest(anyLong(), anyLong())).thenReturn(requestDto);
+        mvc.perform(get("/requests/1").header(requestHeader, 1)).andExpect(status().isOk());
+    }
 }

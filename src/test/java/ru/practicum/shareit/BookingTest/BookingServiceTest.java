@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.exception.IllegalException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemRepository;
@@ -95,6 +96,16 @@ public class BookingServiceTest {
         Booking booking = query.setParameter("id", 1L)
                 .getSingleResult();
         assertThat(booking.getStatus(), equalTo(BookingStatus.APPROVED));
+
+        ResponseStatusException exception2 = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                bookingController.approveBooking(1L, 1L, true);
+            }
+        });
+        assertEquals("400 BAD_REQUEST \"нельзя менять статус на такой же\"; nested exception is " +
+                "ru.practicum.shareit.exception.ValidationException: нельзя менять статус " +
+                "на такой же", exception2.getMessage());
     }
 
     @Test
@@ -126,12 +137,21 @@ public class BookingServiceTest {
         assertThat(booking.getId(), equalTo(1L));
         itemDto.setId(1L);
         assertThat(booking.getItem(), equalTo(ItemMapper.toItem(itemDto)));
+        bookingDto.setItemId(9999L);
+        ResponseStatusException exception3 = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                bookingController.putBooking(1L, bookingDto);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого item\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого item", exception3.getMessage());
     }
 
     @Test
     void getAllBookings() throws Exception {
         bookingService.putBooking(bookingDto, 2L);
-        assertEquals(bookingService.getAllBookings(2L, "ALL", null, null).get(0).getId(),
+        assertEquals(bookingController.getAllBookings(2L, "ALL", null, null).get(0).getId(),
                 1L);
         assertEquals(bookingService.getAllBookings(1L, "ALL", null, null).size(),
                 0);
@@ -149,6 +169,23 @@ public class BookingServiceTest {
                 0);
         assertEquals(bookingService.getAllBookings(2L, "CURRENT", 0, 1).size(),
                 0);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException, IllegalException {
+                bookingController.getAllBookings(9999L, "ALL", null, null);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
+
+        IllegalException exception2 = assertThrows(IllegalException.class, new Executable() {
+            @Override
+            public void execute() throws IllegalException {
+                bookingController.getAllBookings(2L, "ILLEGAL", null, null);
+            }
+        });
+        assertEquals("Unknown state: ILLEGAL", exception2.getMessage());
     }
 
     @Test
@@ -172,6 +209,22 @@ public class BookingServiceTest {
                 0);
         assertEquals(bookingService.getAllBookingsOfOwner(1L, "CURRENT", 0, 1).size(),
                 0);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException, IllegalException {
+                bookingController.getAllBookingsOfOwner(9999L, "ALL", null, null);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
+
+        IllegalException exception2 = assertThrows(IllegalException.class, new Executable() {
+            @Override
+            public void execute() throws IllegalException {
+                bookingController.getAllBookingsOfOwner(2L, "ILLEGAL", null, null);
+            }
+        });
+        assertEquals("Unknown state: ILLEGAL", exception2.getMessage());
     }
 
     @Test

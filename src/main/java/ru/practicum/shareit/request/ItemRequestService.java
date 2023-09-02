@@ -75,7 +75,7 @@ public class ItemRequestService {
                                                Integer size) {
         try {
             userRepository.findById(userId).orElseThrow(()
-                    -> new NotFoundException("нет такого репозитория"));
+                    -> new NotFoundException("нет такого пользователя"));
             List<ItemRequestDto> requestsDto;
             if (from != null && size != null) {
                 requestsDto = ItemRequestMapper.toRequestDto(requestRepository.findAll(

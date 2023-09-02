@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -25,8 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -97,5 +97,40 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].id", is(itemDto.getId()), Long.class))
                 .andExpect(jsonPath("$[0].name", is(itemDto.getName())))
                 .andExpect(jsonPath("$[0].description", is(itemDto.getDescription())));
+
+        when(itemService.getItemOfUser(anyLong()))
+                .thenThrow(NotFoundException.class);
+        mvc.perform(get("/items").header(requestHeader, 1))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateItem() throws Exception {
+        when(itemService.updateItem(anyLong(), anyLong(), any())).thenReturn(itemDto);
+        mvc.perform(patch("/items/1").content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(requestHeader, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        when(itemService.updateItem(anyLong(), anyLong(), any())).thenThrow(NotFoundException.class);
+        mvc.perform(patch("/items/1").content(mapper.writeValueAsString(commentDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(requestHeader, 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetItemById() throws Exception {
+        when(itemService.getItemById(anyLong(), anyLong())).thenReturn(itemDto);
+        mvc.perform(get("/items/1").header(requestHeader, 1L))
+                .andExpect(status().isOk());
+
+        when(itemService.getItemById(anyLong(), anyLong())).thenThrow(NotFoundException.class);
+        mvc.perform(get("/items/1").header(requestHeader, 1L))
+                .andExpect(status().isNotFound());
+
     }
 }

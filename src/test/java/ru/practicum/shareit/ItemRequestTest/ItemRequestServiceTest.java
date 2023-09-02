@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
@@ -37,7 +38,7 @@ public class ItemRequestServiceTest {
     private final EntityManager em;
 
     private final UserService userService;
-
+    private final ItemRequestController requestController;
 
     private final ItemRequestService requestService;
 
@@ -90,21 +91,57 @@ public class ItemRequestServiceTest {
     void testGetRequest() {
         LocalDateTime time = LocalDateTime.now();
         requestService.putRequest(itemRequestDto, 2L, time);
-        assertThat(requestService.getRequest(1L, 2L).getRequestorId(), equalTo(2L));
+        assertThat(requestController.getRequest(1L, 1L).getRequestorId(), equalTo(2L));
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                requestService.getRequest(999L, 999L);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
+
+        ResponseStatusException exception2 = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                requestService.getRequest(999L, 1L);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого запроса\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого запроса", exception2.getMessage());
     }
 
     @Test
     void testGetRequestsAll() {
         LocalDateTime time = LocalDateTime.now();
         requestService.putRequest(itemRequestDto, 2L, time);
-        assertEquals(requestService.getRequestsAll(1L, null, null).size(), 1);
-        assertEquals(requestService.getRequestsAll(1L, 0, 1).size(), 1);
+        assertEquals(requestController.getRequestsAll(1L, null, null).size(), 1);
+        assertEquals(requestController.getRequestsAll(1L, 0, 1).size(), 1);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                requestController.getRequestsAll(999L, 0, 1);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
     }
 
     @Test
     void testGetRequests() {
         LocalDateTime time = LocalDateTime.now();
         requestService.putRequest(itemRequestDto, 2L, time);
-        assertEquals(requestService.getRequests(2L).size(), 1);
+        assertEquals(requestController.getRequests(2L).size(), 1);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
+            @Override
+            public void execute() throws ResponseStatusException {
+                requestController.getRequests(999L);
+            }
+        });
+        assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
+                " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
     }
 }
