@@ -18,7 +18,6 @@ import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -43,9 +42,7 @@ class BookingControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private UserDto userDto;
     private BookingDto bookingDto;
-    private BookingDto badBookingDto;
     private final String requestHeader = "X-Sharer-User-Id";
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -57,8 +54,6 @@ class BookingControllerTest {
                 .build();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        userDto = UserDto.builder().id(1L).name("Fff").email("pf@mail.ru").build();
-        badBookingDto = BookingDto.builder().build();
         LocalDateTime start = LocalDateTime.now().plusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(2);
         bookingDto = BookingDto.builder().start(start).end(end).itemId(1L).build();

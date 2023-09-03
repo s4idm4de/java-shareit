@@ -14,9 +14,9 @@ public interface ItemService {
 
     public ItemDto getItemById(Long itemId, Long userId) throws NotFoundException;
 
-    public List<ItemDto> getItemOfUser(Long userId) throws NotFoundException;
+    public List<ItemDto> getItemOfUser(Long userId, Integer from, Integer size) throws NotFoundException;
 
-    public List<ItemDto> getSearch(String text);
+    public List<ItemDto> getSearch(String text, Integer from, Integer size);
 
     public CommentDto putComment(Long itemId, Long userId, CommentDto comment, LocalDateTime created);
 }

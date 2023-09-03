@@ -16,12 +16,9 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.IllegalException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -36,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-//@Rollback(false)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @SpringBootTest(properties = "db.name=test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -45,16 +41,7 @@ public class BookingServiceTest {
 
     private final UserService userService;
 
-    private final UserRepository userRepository;
-
     private final ItemService itemService;
-
-
-    private final ItemController itemController;
-
-
-    private final ItemRepository itemRepository;
-
 
     private final BookingService bookingService;
 

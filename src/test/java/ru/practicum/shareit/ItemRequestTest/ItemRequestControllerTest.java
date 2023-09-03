@@ -14,11 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.request.ItemRequestController;
 import ru.practicum.shareit.request.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -42,9 +40,6 @@ public class ItemRequestControllerTest {
     private ItemRequestController requestController;
     @Autowired
     private MockMvc mvc;
-
-    private UserDto userDto;
-    private BookingDto bookingDto;
     private ItemRequestDto requestDto;
     private ItemRequestDto badRequestDto;
     private final String requestHeader = "X-Sharer-User-Id";
@@ -58,10 +53,8 @@ public class ItemRequestControllerTest {
                 .build();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        userDto = UserDto.builder().id(1L).name("Fff").email("pf@mail.ru").build();
         LocalDateTime start = LocalDateTime.now().plusDays(1);
         LocalDateTime end = LocalDateTime.now().plusDays(2);
-        bookingDto = BookingDto.builder().start(start).end(end).itemId(1L).build();
         requestDto = ItemRequestDto.builder().description("notNull").build();
         badRequestDto = ItemRequestDto.builder().build();
     }

@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -47,7 +46,6 @@ public class ItemServiceTest {
 
     private final ItemController itemController;
 
-    private final ItemRepository itemRepository;
     private final ItemRequestRepository requestRepository;
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -73,8 +71,11 @@ public class ItemServiceTest {
         ItemDto itemDto2 = ItemDto.builder().available(true).name("Name2").description("d2").owner(userDto2).build();
         itemService.putItem(itemDto2, 1L);
         itemDto2.setId(2L);
-        assertArrayEquals(new List[]{itemService.getSearch("d2")}, new List[]{List.of(itemDto2)});
-        assertEquals(itemController.getSearch(" ").size(), 0);
+        assertArrayEquals(new List[]{itemService.getSearch("d2", null, null)},
+                new List[]{List.of(itemDto2)});
+        assertArrayEquals(new List[]{itemService.getSearch("d2", 0, 1)},
+                new List[]{List.of(itemDto2)});
+        assertEquals(itemController.getSearch(" ", null, null).size(), 0);
     }
 
 
@@ -179,14 +180,14 @@ public class ItemServiceTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, new Executable() {
             @Override
             public void execute() throws ResponseStatusException {
-                itemController.getItemOfUser(999L);
+                itemController.getItemOfUser(999L, null, null);
             }
         });
 
         assertEquals("404 NOT_FOUND \"нет такого пользователя\"; nested exception is" +
                 " ru.practicum.shareit.exception.NotFoundException: нет такого пользователя", exception.getMessage());
-        assertEquals(itemController.getItemOfUser(1L).size(), 1);
-
+        assertEquals(itemController.getItemOfUser(1L, null, null).size(), 1);
+        assertEquals(itemController.getItemOfUser(1L, 0, 1).size(), 1);
     }
 
     @Test

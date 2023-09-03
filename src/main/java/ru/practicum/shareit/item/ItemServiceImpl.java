@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -113,10 +114,15 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> getItemOfUser(Long userId) throws NotFoundException {
+    public List<ItemDto> getItemOfUser(Long userId, Integer from, Integer size) throws NotFoundException {
         userRepository.findById(userId).orElseThrow(()
                 -> new NotFoundException("нет такого пользователя"));
-        List<Item> items = repository.findByOwner_Id(userId);
+        List<Item> items;
+        if (from == null) {
+            items = repository.findByOwner_Id(userId);
+        } else {
+            items = repository.findByOwner_Id(userId, PageRequest.of(from / size, size));
+        }
         return items.stream().map(item -> {
             List<Booking> bookingsLast = bookingRepository.findLastBooking(item, LocalDateTime.now());
             List<Booking> bookingsNext = bookingRepository.findFirstBooking(item, LocalDateTime.now());
@@ -135,9 +141,13 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> getSearch(String text) {
+    public List<ItemDto> getSearch(String text, Integer from, Integer size) {
         if (!(text == null || text.isBlank())) {
-            return ItemMapper.toItemDto(repository.search(text));
+            if (from == null) {
+                return ItemMapper.toItemDto(repository.search(text));
+            } else {
+                return ItemMapper.toItemDto(repository.search(text, PageRequest.of(from / size, size)));
+            }
         } else {
             log.info("Storage getSearch text is null");
             List<ItemDto> empty = new ArrayList<>();

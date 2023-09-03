@@ -89,7 +89,7 @@ public class ItemControllerTest {
 
     @Test
     void testGetAllItems() throws Exception {
-        when(itemService.getItemOfUser(anyLong()))
+        when(itemService.getItemOfUser(anyLong(), any(), any()))
                 .thenReturn(List.of(itemDto));
         mvc.perform(get("/items").header(requestHeader, 1))
                 .andExpect(status().isOk())
@@ -98,10 +98,12 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[0].name", is(itemDto.getName())))
                 .andExpect(jsonPath("$[0].description", is(itemDto.getDescription())));
 
-        when(itemService.getItemOfUser(anyLong()))
+        when(itemService.getItemOfUser(anyLong(), any(), any()))
                 .thenThrow(NotFoundException.class);
         mvc.perform(get("/items").header(requestHeader, 1))
                 .andExpect(status().isNotFound());
+        mvc.perform(get("/items?from=-1&size=10").header(requestHeader, 1))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -132,5 +134,11 @@ public class ItemControllerTest {
         mvc.perform(get("/items/1").header(requestHeader, 1L))
                 .andExpect(status().isNotFound());
 
+    }
+
+    @Test
+    void testSearch() throws Exception {
+        mvc.perform(get("/items/search?text=&from=-1&size=10"))
+                .andExpect(status().isBadRequest());
     }
 }

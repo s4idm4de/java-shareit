@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -55,19 +56,33 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemOfUser(@RequestHeader(requestHeader) Long userId) {
+    public List<ItemDto> getItemOfUser(@RequestHeader(requestHeader) Long userId,
+                                       @RequestParam(required = false) Integer from,
+                                       @RequestParam(required = false) Integer size) {
         try {
-            return itemService.getItemOfUser(userId);
+            if (from != null && from < 0) throw new ValidationException("нет отрицательных индексов");
+            return itemService.getItemOfUser(userId, from, size);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, e.getMessage(), e);
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
         }
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getSearch(@RequestParam(required = false) String text) {
-        log.info("CONTROLLER searh text {}", text);
-        return itemService.getSearch(text);
+    public List<ItemDto> getSearch(@RequestParam(required = false) String text,
+                                   @RequestParam(required = false) Integer from,
+                                   @RequestParam(required = false) Integer size) {
+        try {
+            log.info("CONTROLLER searh text {}", text);
+            if (from != null && from < 0) throw new ValidationException("нет отрицательных индексов");
+            return itemService.getSearch(text, from, size);
+        } catch (ValidationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, e.getMessage(), e);
+        }
     }
 
     @PostMapping("/{itemId}/comment")
