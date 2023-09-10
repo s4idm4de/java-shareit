@@ -152,8 +152,7 @@ public class ItemServiceImpl implements ItemService {
             }
         } else {
             log.info("Storage getSearch text is null");
-            List<ItemDto> empty = new ArrayList<>();
-            return empty;
+            return new ArrayList<>();
         }
     }
 

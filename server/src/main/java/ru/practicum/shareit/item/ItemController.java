@@ -23,6 +23,7 @@ public class ItemController {
     @PostMapping
     public ItemDto putItem(@RequestBody ItemDto item, @RequestHeader(requestHeader) Long userId) {
         try {
+            log.info("server ItemController putItem {}", item);
             return itemService.putItem(item, userId);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
@@ -35,6 +36,7 @@ public class ItemController {
                               @RequestHeader(requestHeader) Long userId,
                               @RequestBody ItemDto item) {
         try {
+            log.info("server ItemController updateItem {}", item);
             return itemService.updateItem(itemId, userId, item);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
@@ -45,6 +47,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId, @RequestHeader(requestHeader) Long userId) {
         try {
+            log.info("server ItemController getItemById {}", itemId);
             return itemService.getItemById(itemId, userId);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
@@ -57,6 +60,7 @@ public class ItemController {
                                        @RequestParam(required = false) Integer from,
                                        @RequestParam(required = false) Integer size) {
         try {
+            log.info("server ItemController getItemOfUser");
             return itemService.getItemOfUser(userId, from, size);
         } catch (NotFoundException e) {
             throw new ResponseStatusException(
@@ -77,7 +81,7 @@ public class ItemController {
     public CommentDto putComment(@PathVariable Long itemId,
                                  @RequestHeader(requestHeader) Long userId,
                                  @RequestBody CommentDto comment) {
-
+        log.info("server ItemController putComment {}", comment);
         return itemService.putComment(itemId, userId, comment, LocalDateTime.now());
     }
 }

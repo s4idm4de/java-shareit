@@ -28,16 +28,19 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable("id") Long userId) {
+        log.info("gateway UserController getUserById {}", userId);
         return userClient.getUserById(userId);
     }
 
     @PostMapping
     public ResponseEntity<Object> create(@Validated @RequestBody UserDto user) {
+        log.info("gateway UserController create {}", user);
         return userClient.addUser(user);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> update(@PathVariable("id") Long userId, @RequestBody UserDto user) {
+        log.info("gateway UserController update {}", user);
         UserDto dummyUser = UserDto.builder().name("dummyName").email("dummy@mail.ru").build();
         if (user.getName() != null) dummyUser.setName(user.getName());
         if (user.getEmail() != null) dummyUser.setEmail(user.getEmail());
@@ -47,6 +50,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") Long userId) {
+        log.info("gateway UserController delete {}", userId);
         return userClient.delete(userId);
     }
 }

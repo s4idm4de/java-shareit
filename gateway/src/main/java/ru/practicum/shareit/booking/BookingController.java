@@ -29,7 +29,7 @@ public class BookingController {
     private final String requestHeader = "X-Sharer-User-Id";
 
     @GetMapping
-    public ResponseEntity<Object> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBookings(@RequestHeader(requestHeader) long userId,
                                               @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                               @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) throws IllegalException {
@@ -45,7 +45,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> bookItem(@RequestHeader(requestHeader) long userId,
                                            @RequestBody @Valid BookItemRequestDto requestDto) {
         try {
             log.info("Creating booking {}, userId={}", requestDto, userId);
@@ -60,7 +60,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBooking(@RequestHeader(requestHeader) long userId,
                                              @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
@@ -68,14 +68,14 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> approveBooking(@PathVariable Long bookingId,
-                                                 @RequestHeader("X-Sharer-User-Id") Long userId,
+                                                 @RequestHeader(requestHeader) Long userId,
                                                  @RequestParam boolean approved) {
         log.info("gadge Controller update");
         return bookingClient.approveBooking(bookingId, userId, approved);
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getAllBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getAllBookingsOfOwner(@RequestHeader(requestHeader) long userId,
                                                         @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                         @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) throws IllegalException {

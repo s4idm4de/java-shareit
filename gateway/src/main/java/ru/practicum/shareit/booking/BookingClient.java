@@ -61,7 +61,7 @@ public class BookingClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "approved", approved
         );
-        log.info("gadge booking update");
+        log.info("gateway booking update");
         return patch("/" + bookingId + "?approved={approved}", userId, parameters);
     }
 }

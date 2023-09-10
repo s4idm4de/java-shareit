@@ -24,11 +24,13 @@ public class RequestController {
     @PostMapping
     public ResponseEntity<Object> putRequest(@RequestBody @Validated RequestDto requestDto,
                                              @RequestHeader(requestHeader) Long userId) {
+        log.info("gateway RequestController putRequest {}", requestDto);
         return requestClient.putRequest(requestDto, userId);
     }
 
     @GetMapping //список своих запросов с ответами на них
     public ResponseEntity<Object> getRequests(@RequestHeader(requestHeader) Long userId) {
+        log.info("gateway RequestController getRequests");
         return requestClient.getRequests(userId);
     }
 
@@ -36,11 +38,13 @@ public class RequestController {
     public ResponseEntity<Object> getRequestsAll(@RequestHeader(requestHeader) Long userId,
                                                  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                  @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("gateway RequestController getRequestsAll");
         return requestClient.getRequestsAll(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getRequest(@RequestHeader(requestHeader) Long userId, @PathVariable Long requestId) {
+        log.info("gateway RequestController getRequest {}", requestId);
         return requestClient.getRequest(requestId, userId);
     }
 

@@ -29,6 +29,7 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> putItem(ItemDto item, Long userId) {
+        log.info("ItemClient putItem {}", item);
         return post("", userId, item);
 
     }
@@ -36,6 +37,7 @@ public class ItemClient extends BaseClient {
     public ResponseEntity<Object> updateItem(Long itemId,
                                              Long userId,
                                              ItemDto item) {
+        log.info("itemClient updateItem {}", item);
         return patch("/" + itemId, userId, item);
     }
 
@@ -49,6 +51,7 @@ public class ItemClient extends BaseClient {
                 "from", from,
                 "size", size
         );
+        log.info("ItemClient getItemOfUser");
         return get("?from={from}&size={size}", userId, parameters);
     }
 
@@ -66,7 +69,7 @@ public class ItemClient extends BaseClient {
     public ResponseEntity<Object> putComment(Long itemId,
                                              Long userId,
                                              CommentDto comment) {
-
+        log.info("ItemClient putComment {}", comment);
         return post("/" + itemId + "/comment", userId, comment);
     }
 }

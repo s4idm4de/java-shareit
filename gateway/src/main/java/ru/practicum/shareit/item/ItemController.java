@@ -25,6 +25,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> putItem(@Validated @RequestBody ItemDto item, @RequestHeader(requestHeader) Long userId) {
+        log.info("ItemController putItem {}", item);
         return itemClient.putItem(item, userId);
 
     }
@@ -39,11 +40,13 @@ public class ItemController {
                 .available(item.getAvailable() == null ? true : item.isAvailable())
                 .description(item.getDescription() == null ? "Dummy description" : item.getDescription())
                 .build();
+        log.info("ItemController updateItem {}", item);
         return itemClient.updateItem(itemId, userId, item);
     }
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(@PathVariable Long itemId, @RequestHeader(requestHeader) Long userId) {
+        log.info("ItemController getItemById");
         return itemClient.getItemById(itemId, userId);
     }
 
@@ -51,6 +54,7 @@ public class ItemController {
     public ResponseEntity<Object> getItemOfUser(@RequestHeader(requestHeader) Long userId,
                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        log.info("ItemController getItemOfUser");
         return itemClient.getItemOfUser(userId, from, size);
     }
 
@@ -66,7 +70,7 @@ public class ItemController {
     public ResponseEntity<Object> putComment(@PathVariable Long itemId,
                                              @RequestHeader(requestHeader) Long userId,
                                              @RequestBody @Validated CommentDto comment) {
-
+        log.info("ItemController put Comment {}", comment);
         return itemClient.putComment(itemId, userId, comment);
     }
 }
